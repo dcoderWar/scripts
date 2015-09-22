@@ -1,0 +1,11 @@
+#!/bin/bash
+
+function kill_wstorm {
+  WSTORM_CMDLINE=`cat /proc/$1/cmdline`
+  if [[ "$WSTORM_CMDLINE" =~ "webstorm" ]]; then
+    kill $1
+  fi
+}
+
+for pid in `ps -ef | grep java | awk '{print $2}'` ; do kill_wstorm $pid ; done
+

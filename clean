@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sudo bleachbit -c apt.* audacious.* bash.* chromium.* firefox.* flash.* gedit.* gnome.* google_chrome.* java.* nautilus.* opera.* system.cache system.clipboard system.custom system.desktop_entry system.recent_documents system.rotated_logs system.tmp system.trash thumbnails.cache thunderbird.* transmission.* vim.* warzone2100.* wine.* x11.*

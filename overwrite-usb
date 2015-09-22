@@ -1,0 +1,14 @@
+#!/bin/bash
+
+sudo su
+
+FILENAME=$1
+FILESIZE=$(stat -c%s "$FILENAME")
+
+echo "Writing $FILENAME ( $FILESIZE ) to /dev/sdb..."
+
+if [ ! -f $FILENAME ]; then
+    echo "$FILENAME not found!"
+else
+    dd if=$FILENAME | pv --size $FILESIZE | dd of=/dev/sdb
+fi

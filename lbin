@@ -1,0 +1,4 @@
+#!/bin/bash
+
+chmod a+x $1
+sudo ln -s $PWD/$1 -T /usr/local/bin/$1

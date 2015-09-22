@@ -1,0 +1,20 @@
+#!/bin/bash
+
+#-------------------------------------------------------
+sleep 1
+#-------------------------------------------------------
+
+gFILE=$1
+gPATH=$PWD"/"$gFILE
+gBASE=${gFILE%.*}
+gTEMP=$PWD"/"$gBASE".enc.mp4"
+gNEWF=$PWD"/"$gBASE".mp4"
+
+HandBrakeCLI --preset Universal -i $gPATH -o $gTEMP
+
+if [ $? -eq 0 ]; then
+  rm -f $gPATH
+  mv -f -u $gTEMP $gNEWF
+fi
+
+~/.scripts/torrent_done $gNEWF $gBASE

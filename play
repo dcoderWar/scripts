@@ -1,0 +1,182 @@
+
+#!/bin/bash
+
+shopt -s nocasematch
+
+VIDEO_TYPE='.*\.\(avi\|mp4\|mkv\|wmv\|m4v\|mov\|mpg\)'
+PATTERN=$VIDEO_TYPE
+VIDEO_DIR=$HOME/Downloads/
+MIN_SIZE='+2097152c'
+FIND_FORMAT='%T@ %p\n'
+VIDEOS=""
+
+isInteger() {
+  if ! [[ $1 =~ ^-?[0-9]+$ ]]; then return 1; fi
+}
+
+match_videos() {
+  VIDEO_NAME=$1; PATTERN=".*"$VIDEO_NAME$VIDEO_TYPE
+}
+
+sort_videos() {
+  readarray -t VIDEOS < <(printf '%s\0' "${VIDEOS[@]}" | sort -z | xargs -0n1)
+}
+
+find_videos() {
+  local COUNT=${1:-5}; local DEPTH=${2:-3}
+  VIDEOS=`find "$VIDEO_DIR" -maxdepth "$DEPTH" -type f -size $MIN_SIZE -iregex "$PATTERN" \
+    -printf "$FIND_FORMAT" | sort -rn | head -n "$COUNT" | cut -f2- -d" "`
+  IFS=$'\n\r' VIDEOS=(${VIDEOS//$'\n\r'/ })
+}
+
+show_videos() {
+  local i=${#VIDEOS[@]}; local NAME=""
+  while [ $i -gt 0 ]; do ((i--));
+    NAME=`basename "${VIDEOS[$i]:-REMOVED!}"`
+    echo -e "\n[  $i  ]: $NAME"
+  done
+  echo " "
+}
+
+play_video() {
+  local INDEX=${1:-0}; let MAX_INDEX=${#VIDEOS[@]}-1
+  if ! isInteger $INDEX || [ $INDEX -gt $MAX_INDEX ] ; then
+    echo "\"$INDEX\" is not a valid index!"
+    exit 2
+  fi
+  vlc --play-and-exit "${VIDEOS[$INDEX]}"
+  if dialog --timeout 10 --clear --defaultno --title "Delete Confirmation" \
+    --yesno "${VIDEOS[$INDEX]}" 8 80; then remove_video $INDEX; fi
+}
+
+remove_video() {
+  local INDEX=${1:-0}
+  if [ "${INDEX,,}" = "last" ]; then
+    let INDEX=${#VIDEOS[@]}-1
+  elif [ "${INDEX,,}" = "all" ]; then
+     for (( i=0; i < ${#VIDEOS[@]}; i++ ))
+     do
+       remove_video $i
+     done
+     return 1
+  fi
+  if isInteger $INDEX; then
+    local VID="${VIDEOS[$INDEX]}"
+    unset VIDEOS[$INDEX]
+    rm -rvf "$VID"
+    local DIR=`dirname "$VID"`
+    local NAME=${DIR##*/}
+    if [ -d "$DIR" ] && [ "$NAME" != "Downloads" ]; then
+      rm -rvf "$DIR"
+    fi
+  else
+    echo "\"$INDEX\" is not a valid index!"
+    exit 2
+  fi
+  return 1
+}
+
+act_default() {
+  find_videos && play_video 0
+}
+
+act_show_path() {
+  INDEX=${1:-0}; COUNT=${2:-$((INDEX+1))}; DEPTH=$3
+  find_videos $COUNT $DEPTH && echo "${VIDEOS[$INDEX]}"
+}
+
+act_rm_video() {
+  NAME=$1; COUNT=$2; DEPTH=$3
+
+  if [ "$NAME" = "" ]; then
+    find_videos && remove_video 0
+
+  elif isInteger $NAME; then
+    INDEX=${NAME:-0}; COUNT=${COUNT:-$((INDEX+1))}
+    find_videos $COUNT $DEPTH && remove_video $INDEX
+
+  else
+    COUNT=${COUNT:-50}
+
+    if [ "${NAME,,}" = "all" ]; then
+      find_videos $COUNT $DEPTH && remove_video "all"
+
+    elif [ "${NAME,,}" = "last" ]; then
+      find_videos $COUNT $DEPTH && remove_video "last"
+
+    else
+      match_videos $NAME
+      find_videos $COUNT $DEPTH && remove_video "all"
+
+    fi
+  fi
+
+  show_videos
+}
+
+act_show_list() {
+  NAME=$1
+
+  if isInteger $NAME; then
+    find_videos $NAME $2
+
+  elif [ "${NAME,,}" = "all" ]; then
+    find_videos 50 $2
+
+  else
+    match_videos $NAME
+    find_videos ${2:-5} $3 && sort_videos
+
+  fi
+
+  show_videos
+}
+
+act_play_all() {
+  START=0; ARGS=${@:2}
+  if [ "${2,,}" = "from" ]; then
+    START=$3; ARGS=${@:4}
+  fi
+  invoke_action "list" $1 $ARGS; sleep 2
+  for (( INDEX="$START"; INDEX < ${#VIDEOS[@]}; INDEX++ )); do play_video $INDEX; done
+}
+
+act_play_last() {
+  COUNT=${1:-50}; DEPTH=$2; find_videos $COUNT $DEPTH
+  let INDEX=${#VIDEOS[@]}-1
+  play_video $INDEX
+}
+
+act_play_new() {
+  NAME=$1
+  if isInteger $NAME; then
+    INDEX=$NAME; COUNT=$((INDEX+1)); DEPTH=$2; find_videos $COUNT $DEPTH
+  else
+    match_videos $NAME; INDEX=$2; COUNT=${3:-5}; DEPTH=$4; find_videos $COUNT $DEPTH
+  fi
+  play_video $INDEX
+}
+
+invoke_action() {
+  ARGS=${@:2}
+
+  case "${1,,}" in
+
+  "")     act_default ;;
+
+  "path") act_show_path $ARGS ;;
+
+  "rm")   act_rm_video $ARGS ;;
+
+  "list") act_show_list $ARGS ;;
+
+  "all")  act_play_all $ARGS ;;
+
+  "last") act_play_last $ARGS ;;
+
+  *)      act_play_new $@ ;;
+
+  esac
+}
+
+invoke_action $@

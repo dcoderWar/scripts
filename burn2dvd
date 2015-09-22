@@ -1,0 +1,56 @@
+#! /bin/bash
+
+requires() {
+  PKG=(${1//:/ });
+  if dpkg-query -W -f='${Status}' "${PKG[0]}" 2>/dev/null | grep -c "ok installed" &>/dev/null; then
+    if ! which ${PKG[1]} &>/dev/null; then
+      echo "\`${PKG[0]}\` is installed but the executable was NOT found."
+      echo "Please add \`${PKG[1]}\` to your path."
+      exit 1
+    fi
+  elif which $PKG[1] &>/dev/null; then
+     echo "\`${PKG[1]}\` was found in your path however \`${PKG[0]}\` is being reported as NOT installed."
+     echo -n "Use \`"`which $PKG[1]`"\`? (yes, no): "
+     read GO_AHEAD
+     if [ "${GO_AHEAD,,}" != "yes" ]; then
+       exit 1
+     fi
+  else
+     echo "\`${PKG[1]}\` was not found on your system, please install the \`${PKG[0]}\` package and try again."
+     exit 1
+  fi
+}
+
+for PACKAGE in "ffmpeg:ffmpeg" "genisoimage:mkisofs" "dvdauthor:dvdauthor" "growisofs:growisofs"
+do
+  requires $PACKAGE
+done
+
+DEVICE=/dev/`readlink /dev/cdrom`
+WRKDIR=$HOME/.dvdtemp/`date +%N`
+MPGFILE=$WRKDIR/output.mpg
+DVDFILE=$WRKDIR/dvd/
+ISOFILE=$WRKDIR/output.iso
+
+export VIDEO_FORMAT="NTSC"
+
+# mkdir -p $HOME/.config
+# echo NTSC > $HOME/.config/video_format
+
+mkdir -p "$WRKDIR"
+
+while (( "$#" )); do
+
+ffmpeg -i "$1" -target ntsc-dvd -aspect 4:3 -ac 2 "$MPGFILE" && \
+dvdauthor -t -o "$DVDFILE" --video=ntsc -f "$MPGFILE" && \
+rm -rf "$MPGFILE" || echo FAIL
+
+shift
+
+done
+
+dvdauthor -T -o "$DVDFILE"
+
+mkisofs -dvd-video -o "$ISOFILE" "$DVDFILE" && \
+growisofs -dvd-compat -Z $DEVICE="$ISOFILE" && \
+rm -fr "$WRKDIR"

@@ -1,0 +1,2 @@
+#! /bin/bash
+WINEPREFIX=~/.wine32 WINEARCH=win32 winetricks $1

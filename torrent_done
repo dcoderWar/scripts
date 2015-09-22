@@ -1,0 +1,27 @@
+#!/bin/bash
+
+gName=${2:-"Torrent"}
+gPATH=${1:-$HOME"/Downloads/"}
+gSECTION=1
+
+function refresh_plex() {
+  ID=$1
+  curl http://localhost:32400/library/sections/$ID/refresh &>/dev/null
+  curl http://localhost:32400/library/sections/$((ID++))/refresh &>/dev/null
+}
+
+function notify_done() {
+  notify-send --icon /usr/share/pixmaps/qbittorrent.png \
+  "($1) has downloaded." \
+  "$2"
+}
+
+refresh_plex $gSection
+
+$HOME/.scripts/torrent_cleanup $gPATH
+$HOME/.scripts/getsubs $gPATH
+
+notify_done $gName $gPATH
+
+e4defrag $gPATH
+
