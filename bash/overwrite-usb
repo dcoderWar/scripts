@@ -1,11 +1,9 @@
 #!/bin/bash
 
-sudo su
-
-FILENAME=$1
+FILENAME=`realpath "$1"`
 FILESIZE=$(stat -c%s "$FILENAME")
 
-echo "Writing $FILENAME ( $FILESIZE ) to /dev/sdb..."
+echo "Writing `basename $FILENAME` ( $FILESIZE ) to /dev/sdb..."
 
 if [ ! -f $FILENAME ]; then
     echo "$FILENAME not found!"

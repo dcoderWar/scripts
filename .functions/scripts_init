@@ -1,9 +1,13 @@
 #!/bin/bash
 
-export __SCRIPTS_DIR__="$HOME/.scripts"
-export __SCRIPTS_BROWSER__="firefox"
+__SCRIPTS_DIR__="$HOME/.scripts"
+__SCRIPTS_BROWSER__="firefox"
 
 if [ -z "$__SCRIPTS_OLD_PATH__" ]; then
-    export __SCRIPTS_OLD_PATH__=$PATH
-    export PATH=$PATH:$__SCRIPTS_DIR__/.bin
+    __SCRIPTS_OLD_PATH__=$PATH
+    PATH=$PATH:$__SCRIPTS_DIR__/.bin
 fi
+
+export __SCRIPTS_DIR__
+export __SCRIPTS_BROWSER__
+export __SCRIPTS_OLD_PATH__
