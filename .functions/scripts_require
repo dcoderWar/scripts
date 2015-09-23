@@ -1,0 +1,23 @@
+#!/bin/bash
+
+requires() {
+  PKG=(${1//:/ });
+  if dpkg-query -W -f='${Status}' "${PKG[0]}" 2>/dev/null | grep -c "ok installed" &>/dev/null; then
+    if ! which ${PKG[1]} &>/dev/null; then
+      echo "\`${PKG[0]}\` is installed but the executable was NOT found."
+      echo "Please add \`${PKG[1]}\` to your path."
+      exit 1
+    fi
+  elif which $PKG[1] &>/dev/null; then
+     echo "\`${PKG[1]}\` was found in your path however \`${PKG[0]}\` is being reported as NOT installed."
+     echo -n "Use \`"`which $PKG[1]`"\`? (yes, no): "
+     read GO_AHEAD
+     if [ "${GO_AHEAD,,}" != "yes" ]; then
+       exit 1
+     fi
+  else
+     echo "\`${PKG[1]}\` was not found on your system, please install the \`${PKG[0]}\` package and try again."
+     exit 1
+  fi
+}
+

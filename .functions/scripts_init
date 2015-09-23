@@ -1,0 +1,8 @@
+#!/bin/bash
+
+export __SCRIPTS_DIR__="$HOME/.scripts"
+export __SCRIPTS_BROWSER__="firefox"
+
+if [ -z "$__SCRIPTS_OLD_PATH__" ]; then
+    export __SCRIPTS_OLD_PATH__=$PATH:$__SCRIPTS_DIR__/.bin
+fi

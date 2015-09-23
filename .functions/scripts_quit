@@ -1,0 +1,12 @@
+#!/bin/bash
+
+quit() {
+    if [ -z "$__SCRIPTS_OLD_PATH__" ]; then
+        export __SCRIPTS_OLD_PATH__=$PATH
+    else
+        export PATH=$__SCRIPTS_OLD_PATH__
+        export __SCRIPTS_OLD_PATH__=""
+    fi
+}
+
+quit

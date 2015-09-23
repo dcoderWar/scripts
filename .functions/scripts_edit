@@ -1,0 +1,3 @@
+#!/bin/bash
+
+"${EDITOR:-vi}" "$__SCRIPTS_DIR__/.functions/scripts_"$1
