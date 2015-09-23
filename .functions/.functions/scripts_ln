@@ -1,8 +1,0 @@
-#!/bin/bash
-
-if [ -f "$1" ] && ! [ -h "$1" ] ; then
-    rm -rf "$HOME/.scripts/.bin/`basename $1`"
-
-    chmod a+x "$1"
-    sudo ln -fvs "$1" -T "$HOME/.scripts/.bin/`basename $1`"
-fi
