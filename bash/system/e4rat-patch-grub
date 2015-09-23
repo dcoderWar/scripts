@@ -1,0 +1,35 @@
+#! /bin/bash
+
+PRELOAD="init=\/sbin\/e4rat-preload"
+COLLECT="init=\/sbin\/e4rat-collect"
+
+
+PARAMS="GRUB_CMDLINE_LINUX_DEFAULT\=\"splash "$PRELOAD" pcie_aspm=off apparmor=1 security=apparmor zswap.enabled=1 zswap.zpool=zsmalloc\""
+
+if [ "$1" == "collect" ]; then
+  PARAMS="GRUB_CMDLINE_LINUX_DEFAULT\=\"splash "$COLLECT" pcie_aspm=off apparmor=1 security=apparmor zswap.enabled=1 zswap.zpool=zsmalloc\""
+fi
+
+function print_result() {
+  echo
+  RESULT=`cat $1 | grep GRUB_CMDLINE_LINUX_DEFAULT`
+  echo "RESULT: "$RESULT
+  echo
+}
+
+function patch() {
+  USER=`whoami`
+  mkdir -p /home/$USER/Mocks/etc/default/
+  cp -f /etc/default/grub /home/$USER/Mocks/etc/default/grub-`date +%N`
+  sudo sed -i s/GRUB_CMDLINE_LINUX_DEFAULT.*".*"/"$PARAMS"/ $1
+  print_result $1
+  sudo update-grub
+  PARAMS="GRUB_CMDLINE_LINUX_DEFAULT\=\"splash "$PRELOAD" pcie_aspm=off apparmor=1 security=apparmor\""
+}
+
+
+if [ "$1" == "-s" ]; then
+  print_result /etc/default/grub
+else
+  patch /etc/default/grub
+fi

@@ -1,0 +1,38 @@
+#! /bin/bash
+
+# Remove old packages and previous installations
+echo Preparing to install...
+sudo clean
+sudo update
+sudo apt-get dist-upgrade -y
+sudo dpkg --purge --force-all ubuntu-minimal ureadahead >/dev/null
+sudo dpkg --remove --force-all e4rat >/dev/null
+
+TEMP_DIR=/tmp/e4rat-build-tmp
+USER=`whoami`
+
+echo Creating temporary directory...
+sudo rm -R $TEMP_DIR >/dev/null
+sudo mkdir -p $TEMP_DIR >/dev/null
+sudo chown -R $USER.$USER $TEMP_DIR >/dev/null
+
+echo Downloading latest version of the ubuntu-minimal package...
+cd $TEMP_DIR
+sudo apt-get download ubuntu-minimal -y
+
+echo Unselecting ureadahead as ubuntu-minimal dependency...
+mv -f ubuntu-minimal*.deb ubuntu-minimal.deb
+dpkg-deb -x ubuntu-minimal.deb ubuntu-minimal
+dpkg-deb -e ubuntu-minimal.deb ubuntu-minimal/DEBIAN
+sed -i s/ureadahead.*,// ubuntu-minimal/DEBIAN/control
+dpkg-deb -b ubuntu-minimal ubuntu-minimal-patched.deb
+
+echo Installing ubuntu-minimal and e4rat...
+sudo dpkg -i ubuntu-minimal-patched.deb
+sudo apt-get install -fy e4rat
+
+echo Cleaning up...
+sudo rm -fr $TEMP_DIR
+
+echo Updating grub...
+e4rat-patch-grub

@@ -1,0 +1,4 @@
+#! /bin/bash
+sudo dpkg --purge --force-all $@
+sudo apt-get install $@ -fy
+
