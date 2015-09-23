@@ -1,4 +1,4 @@
 #!/bin/bash
 
-python $HOME/.scripts/telnetenable.py 192.168.1.1 C404158F4DC7 Gearguy Geardog
+telnetenable.py 192.168.1.1 C404158F4DC7 Gearguy Geardog
 telnet -l Gearguy 192.168.1.1 23
