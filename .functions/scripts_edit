@@ -1,3 +1,7 @@
 #!/bin/bash
 
-"${EDITOR:-vi}" "$__SCRIPTS_DIR__/.functions/scripts_$1"
+scripts_hook $@; hooked=$?
+if [ $hooked -ne 0 ]; then exit $hooked; fi
+
+"${EDITOR:-vi}" "$__SCRIPTS_FUN__/scripts_$1"
+scripts_update &>/dev/null

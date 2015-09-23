@@ -1,5 +1,8 @@
 #!/bin/bash
 
+scripts_hook $@; hooked=$?
+if [ $hooked -ne 0 ]; then exit $hooked; fi
+
 requires() {
   PKG=(${1//:/ });
   if dpkg-query -W -f='${Status}' "${PKG[0]}" 2>/dev/null | grep -c "ok installed" &>/dev/null; then
@@ -20,4 +23,9 @@ requires() {
      exit 1
   fi
 }
+
+for PACKAGE in $@
+do
+    requires $PACKAGE
+done
 

@@ -1,4 +1,7 @@
 #!/bin/bash
 
-find $HOME/.scripts ! -regex ".*[/]\.git[/]?.*" -exec $HOME/.scripts/.functions/scripts_ln '{}' \;
+scripts_hook $@; hooked=$?
+if [ $hooked -ne 0 ]; then exit $hooked; fi
+
+find "$__SCRIPTS_DIR__" ! -regex ".*[/]\.git[/]?.*" -exec $__SCRIPTS_FUN__/scripts_ln '{}' \;
 

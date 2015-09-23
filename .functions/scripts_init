@@ -2,12 +2,16 @@
 
 __SCRIPTS_DIR__="$HOME/.scripts"
 __SCRIPTS_BROWSER__="firefox"
+__SCRIPTS_BIN__=$__SCRIPTS_DIR__/.bin
+__SCRIPTS_FUN__=$__SCRIPTS_DIR__/.functions
 
 if [ -z "$__SCRIPTS_OLD_PATH__" ]; then
     __SCRIPTS_OLD_PATH__=$PATH
-    PATH=$PATH:$__SCRIPTS_DIR__/.bin
+    PATH=$PATH:$__SCRIPTS_BIN__
 fi
 
 export __SCRIPTS_DIR__
 export __SCRIPTS_BROWSER__
 export __SCRIPTS_OLD_PATH__
+export __SCRIPTS_BIN__
+export __SCRIPTS_FUN__

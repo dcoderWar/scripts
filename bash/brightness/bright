@@ -1,7 +1,10 @@
 #!/bin/bash
 
-source $HOME/.scripts/.functions/scripts_require
+scripts_hook $@; hooked=$?
+if [ $hooked -ne 0 ]; then exit $hooked; fi
 
-requires "xbacklight:xbacklight"
-
-xbacklight -set 100
+if scripts_valid set_brightness; then
+    set_brightness 100
+else
+    exit 1
+fi

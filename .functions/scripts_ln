@@ -1,10 +1,14 @@
 #!/bin/bash
 
-mkdir -p $HOME/.scripts/.bin &>/dev/null
+scripts_hook $@; hooked=$?
+if [ $hooked -ne 0 ]; then exit $hooked; fi
+
+mkdir -p $__SCRIPTS_BIN__ &>/dev/null
 
 if [ -f "$1" ] && ! [ -h "$1" ] ; then
-    rm -rf "$HOME/.scripts/.bin/`basename $1`"
+    target_script="$__SCRIPTS_BIN__/`basename $1`"
+    rm -rf "$target_script" &>/dev/null
 
     chmod a+x "$1"
-    ln -fvs "$1" -T "$HOME/.scripts/.bin/`basename $1`"
+    ln -fvs "`realpath $1`" -T "$target_script"
 fi

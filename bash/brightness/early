@@ -1,3 +1,10 @@
 #!/bin/bash
 
-xbacklight -set 75
+scripts_hook $@; hooked=$?
+if [ $hooked -ne 0 ]; then exit $hooked; fi
+
+if scripts_valid set_brightness; then
+    set_brightness 75
+else
+    exit 1
+fi

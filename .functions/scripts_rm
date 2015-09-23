@@ -3,8 +3,8 @@
 scripts_hook $@; hooked=$?
 if [ $hooked -ne 0 ]; then exit $hooked; fi
 
-if scripts_valid set_brightness; then
-    set_brightness 1
-else
-    exit 1
+rm $1
+
+if [ $? -eq 0 ]; then
+    rm -rf "$__SCRIPTS_BIN__/`basename $1`" &>/dev/null
 fi

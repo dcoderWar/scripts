@@ -1,0 +1,5 @@
+#!/bin/bash
+
+if [ "$1" = "check_script_validity" ]; then
+    exit 889 # 121
+fi

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+scripts_hook $@; hooked=$?
+if [ $hooked -ne 0 ]; then exit $hooked; fi
+
+if scripts_valid scripts_require; then
+    if ! scripts_require "xbacklight:xbacklight"; then exit 2; fi
+
+    xbacklight -set $1
+else
+    exit 1
+fi

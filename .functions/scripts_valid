@@ -1,0 +1,10 @@
+#!/bin/bash
+
+for TARGET_SCRIPT in $@
+do
+    $TARGET_SCRIPT "check_script_validity"
+    if [ $? -ne 121 ]; then
+        echo $TARGET_SCRIPT failed script validity test!
+        exit 1
+    fi
+done

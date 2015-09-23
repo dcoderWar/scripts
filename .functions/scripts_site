@@ -1,0 +1,17 @@
+#!/bin/bash
+
+scripts_hook $@; hooked=$?
+if [ $hooked -ne 0 ]; then exit $hooked; fi
+
+if scripts_valid launch; then
+    mkdir -p "$__SCRIPTS_DIR__/bash/sites" &>/dev/null
+
+    target_script="$__SCRIPTS_DIR__/bash/sites/$1"
+
+    echo "#!/bin/bash" > "$target_script"
+    echo "launch $__SCRIPTS_BROWSER__ $2" >> "$target_script"
+
+    scripts_update &>/dev/null
+else
+    exit 1
+fi
