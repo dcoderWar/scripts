@@ -1,0 +1,4 @@
+#!/bin/bash
+
+find $HOME/.scripts ! -regex ".*[/]\.git[/]?.*" -exec $HOME/.scripts/.functions/scripts_ln '{}' \;
+
